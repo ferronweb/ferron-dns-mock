@@ -1,0 +1,8 @@
+[package]
+name = "ferron-dns-mock"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+async-trait = "0.1.88"
+ferron-common = { git = "https://github.com/ferronweb/ferron.git", branch = "develop-2.x" }
