@@ -2,6 +2,16 @@
 
 This is a mock DNS provider for Ferron, demonstrating how to create a custom DNS provider for ACME with Ferron.
 
+## Example directive specification
+
+```kdl
+auto_tls_challenge "dns-01" provider="mock"
+```
+
+## Additional props
+
+None
+
 ## Compiling Ferron with this provider
 
 To compile Ferron with this provider, first clone the Ferron repository:
