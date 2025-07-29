@@ -31,10 +31,10 @@ After that, add the following line to the `ferron-build-override.yaml` file:
 
 ```yaml
 dns:
-  # Other modules...
+  # Other DNS providers...
   - git: https://github.com/ferronweb/ferron-dns-mock.git
     crate: ferron-dns-mock
-    loader: MockDnsProvider
+    provider: MockDnsProvider
 ```
 
 After modifying the `ferron-build-override.yaml` file, you can compile Ferron with this module by running the following command:
