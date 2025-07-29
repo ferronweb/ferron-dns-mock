@@ -26,6 +26,8 @@ jobs:
           path: "ferron"
       - name: Setup cache
         uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: "ferron -> target"
       # Copy `ferron-build.yaml` to `ferron-build-override.yaml`. The `ferron-build-override.yaml` file will be later modified.
       - name: Create Ferron compile-time configuration overrides
         run: cp ferron/ferron-build.yaml ferron/ferron-build-override.yaml
