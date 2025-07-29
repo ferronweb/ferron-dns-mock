@@ -34,13 +34,13 @@ jobs:
         uses: mikefarah/yq@v4
         with:
           cmd: |
-            yq -i '.modules |= (
+            yq -i '.dns |= (
                   . +
                   [
                     {
                       "path": "${{ github.workspace }}/dnsprovider",
                       "crate": "ferron-dns-mock",
-                      "loader": "MockDnsProvider"
+                      "provider": "MockDnsProvider"
                     }
                   ]
                   )' ferron/ferron-build-override.yaml
