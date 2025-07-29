@@ -33,6 +33,7 @@ After that, add the following line to the `ferron-build-override.yaml` file:
 dns:
   # Other DNS providers...
   - git: https://github.com/ferronweb/ferron-dns-mock.git
+    id: mock
     crate: ferron-dns-mock
     provider: MockDnsProvider
 ```

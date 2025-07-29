@@ -39,6 +39,7 @@ jobs:
                   [
                     {
                       "path": "${{ github.workspace }}/dnsprovider",
+                      "id": "mock",
                       "crate": "ferron-dns-mock",
                       "provider": "MockDnsProvider"
                     }
