@@ -1,0 +1,67 @@
+# This GitHub Actions workflow checks if Ferron can be compiled with the DNS provider.
+
+name: Ferron DNS provider compilation test
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  compile-test:
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout the DNS provider repository
+      - name: Checkout DNS provider repository
+        uses: actions/checkout@v2
+        with:
+          path: "dnsprovider"
+      # Checkout Ferron 2.x repository
+      - name: Checkout Ferron repository
+        uses: actions/checkout@v2
+        with:
+          repository: "ferronweb/ferron"
+          ref: "develop-2.x"
+          path: "ferron"
+      - name: Setup cache
+        uses: Swatinem/rust-cache@v2
+      # Copy `ferron-build.yaml` to `ferron-build-override.yaml`. The `ferron-build-override.yaml` file will be later modified.
+      - name: Create Ferron compile-time configuration overrides
+        run: cp ferron/ferron-build.yaml ferron/ferron-build-override.yaml
+      # Modify Ferron compile-time configuration to add the DNS provider
+      - name: Modify Ferron compile-time configuration
+        uses: mikefarah/yq@v4
+        with:
+          cmd: |
+            yq -i '.modules |= (
+                  . +
+                  [
+                    {
+                      "path": "${{ github.workspace }}/dnsprovider",
+                      "crate": "ferron-dns-mock",
+                      "loader": "MockDnsProvider"
+                    }
+                  ]
+                  )' ferron/ferron-build-override.yaml
+      # Build Ferron with the DNS provider to check if it can be compiled
+      - name: Build Ferron
+        run: |
+          cd ferron
+          cargo run --manifest-path build-prepare/Cargo.toml
+          cd build-workspace
+          while [ "$OLD_CONFLICTING_PACKAGES" != "$CONFLICTING_PACKAGES" ] || [ "$OLD_CONFLICTING_PACKAGES" = "" ]; do \
+              OLD_CONFLICTING_PACKAGES=$CONFLICTING_PACKAGES; \
+              CONFLICTING_PACKAGES=$( (cargo update -w --dry-run 2>&1 || true) | grep -E '^error: failed to select a version for (the requirement )?`[^ `]+' | sed -E 's|[^`]*`([^ `]+).*|\1|' | xargs); \
+              if [ "$CONFLICTING_PACKAGES" = "" ]; then \
+                  break; \
+              fi; \
+              if [ "$OLD_CONFLICTING_PACKAGES" = "$CONFLICTING_PACKAGES" ]; then \
+                  echo "Couldn't resolve Cargo conflicts" >&2; \
+                  exit 1; \
+              fi; \
+              if [ "$CONFLICTING_PACKAGES" != "" ]; then \
+                  cargo update $CONFLICTING_PACKAGES || true; \
+              fi; \
+          done
+          cargo build --verbose
