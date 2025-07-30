@@ -67,4 +67,5 @@ jobs:
                   cargo update $CONFLICTING_PACKAGES || true; \
               fi; \
           done
-          cargo build --verbose
+          cargo build --verbose --target-dir ../target
+          cd ..
